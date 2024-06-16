@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artwork Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+        }
+        header h1 {
+            text-align: center;
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 24px;
+        }
+        form {
+            margin: 30px 0;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 40%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background: #77aaff;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result {
+            background: #fff;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Artwork Search</h1>
+    </header>
+    <div class="container">
+        <form id="searchForm">
+            <input type="text" id="artworkName" placeholder="Enter artwork name" required>
+            <input type="text" id="artistName" placeholder="Enter artist name" required>
+            <input type="submit" value="Search">
+        </form>
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const artworkName = document.getElementById('artworkName').value;
+            const artistName = document.getElementById('artistName').value;
+
+            fetch(`/artwork?name=${encodeURIComponent(artworkName)}&artist=${encodeURIComponent(artistName)}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return Promise.reject('No matching artwork found.');
+                    }
+                })
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    data.forEach(item => {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.classList.add('result');
+                        resultDiv.innerHTML = `
+                            <h3>${item.Name}</h3>
+                            <p><strong>Artist:</strong> ${item.Artist}</p>
+                            <p><strong>Price:</strong> ${item.Price}</p>
+                            <p><strong>Website:</strong> ${item.Website}</p>
+                        `;
+                        resultsDiv.appendChild(resultDiv);
+                    });
+                })
+                .catch(error => {
+                    document.getElementById('results').innerHTML = `<p>${error}</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
